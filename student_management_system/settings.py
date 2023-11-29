@@ -1,4 +1,3 @@
-
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -12,9 +11,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '(i#*06f#keydy_fh17bf=$0f6v)^wr^l7*u4gq42m*sztu#2_m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '127.0.0.1:8000']
 
 
 # Application definition
@@ -26,11 +25,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'django_password_validators',
+    'django_password_validators.password_history',
     'student_management_app',
 ]
 
 MIDDLEWARE = [
+    'csp.middleware.CSPMiddleware',  
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -38,9 +39,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     'student_management_app.LoginCheckMiddleWare.LoginCheckMiddleWare',
+   
 ]
+CSP_IMG_SRC = ("'allow-all'",'127.0.0.1:8000', '127.0.0.1')
+CSP_STYLE_SRC = ("'allow-all'", '127.0.0.1:8000', '127.0.0.1')
+CSP_SCRIPT_SRC = ("'allow-all'", '127.0.0.1:8000', '127.0.0.1')
+
 
 ROOT_URLCONF = 'student_management_system.urls'
 
@@ -88,6 +93,26 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
+        'NAME': 'django_password_validators.password_character_requirements.password_validation.PasswordCharacterValidator',
+        'OPTIONS': {
+             'min_length_digit': 1,
+             'min_length_alpha': 2,
+             'min_length_special': 3,
+             'min_length_lower': 4,
+             'min_length_upper': 5,
+             'special_characters': "~!@#$%^&*()_+{}\":;'[]"
+         }
+    },
+    {
+        'NAME': 'django_password_validators.password_history.password_validation.UniquePasswordsValidator',
+        'OPTIONS': {
+             # How many recently entered passwords matter.
+             # Passwords out of range are deleted.
+             # Default: 0 - All passwords entered by the user. All password hashes are stored.
+            'last_passwords': 5 # Only the last 5 passwords entered by the user
+        }
+    },
+    {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
@@ -125,3 +150,9 @@ AUTH_USER_MODEL = "student_management_app.CustomUser"
 
 # Registering Custom Backend "EmailBackEnd"
 AUTHENTICATION_BACKENDS = ['student_management_app.EmailBackEnd.EmailBackEnd']
+
+#SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SECURE_BROWSER_XSS_FILTER = True
